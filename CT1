@@ -1,0 +1,109 @@
+
+# -*- coding: utf-8 -*-
+"""
+////////////////////////////////////////////////////////////////
+Matthew R. Myers            PHYS 532       CT1       (9.23.2016)
+////////////////////////////////////////////////////////////////
+
+OBJ: Estimate value of pi to 6 digits
+Accepted pi = 3.141 592 653 589...
+"""
+
+import random
+import numpy
+
+"""(!)--> BONUS: Build a check into your code which stops iterating when the n + 2th digit doesn’t change between iterations."""
+
+# To have built-in check system to check pi as unchanging in the accuracy bound of digit 6, you must actually verify no change in 8th digit. See if 8th digit uncertainty large enough it will change 7th digit but not 6th.
+    # Use WHILE Loop to tell Python to continue running defined pi estimating method "____" with greater and greater precision in each successive iteration until condition where estimated pi stops changing in the 8th digit:
+    # Use "est_pi[8]" to call 8th digit
+    # Use condition est_pi[] est_pi[8]
+
+# Initially declare pi outside of called method to be floating 0 when program run
+est_pi = 0.0
+# Set up number of trials starting value reset at 0
+numTrial = 0
+
+
+def MonteCarloPi(index=10**10,precision=9): # Declare method "MonteCarloPi" to estimate pi using Monte Carlo
+    count = 0
+    est_pi_list = list() # Created empty list to hold esttimates of pi after each Monte Carlo trial
+    numTrial = 0 # Set number of trials "numTrial" to be initially an integer, 0
+    
+    def avg_est_pi(strlist=list): # Defined function "avg_est_pi" to find average of all entries in a list of strings of floats, UNUSED
+        strlist = [float(i[:precision]) for i in strlist] # List comprehension to convert all strings in list from entry 0 to i into floats
+        return sum(strlist)/len(strlist) # Function set to return sum all of floats in newly converted list of floats divided by the number of entries in the new list => Average
+    
+    condition = True # Set arbitrary initial condition to be TRUE
+    while condition and numTrial < index: # As long as condition is TRUE and the number of trials is less than the maximum number of trials allowed (defined to be "index" when function MonteCarloPi was defined) => Do the following:
+    
+        # Run single trial to acquire an ith value in    
+        numTrial += 1 # For this ith trial add +1 to number of trials "numTrial" 
+        x = random.random() #Create random float between 0 and 1 for x coordinate
+        y = random.random() #Create random float between 0 and 1 for y coordinate
+        
+        # Next in loop verify if (x,y) subbed in x^2 + y^2 < 1
+        # If yes:
+        #   => (x,y) point is in the quadrant 1 quarter-slice of circle who's area A = pi
+        #   => count +1 & est_pi = (count/n)*4
+        #   => Multiply est_pi by 4 because (x,y) can only be in quadrant 1 (A =pi/4)
+
+        if x**2 + y**2 < 1:
+            count += 1
+            est_pi = 4*count/numTrial # Float estimate of pi
+            est_pi_list.append(str(est_pi)) # String of float estimate of pi added into list of estimates of pi "est_pi_list"
+        
+        if not est_pi_list: # Setup check to require the est_pi_list to have at least one entry, meaning one x,y point was inside the circle of radius r = 1
+            continue # If list is empty, stop at this point go back to beginning of loop
+        if len(est_pi_list) >= 2: 
+            # Setup check to require est_pi_list to have at least 2 entries
+            if len(est_pi_list[-1]) >= precision+1 and len(est_pi_list[-2]) >= precision+1:
+                # Setup check to require last and next to last entry of est_pi_list to have at least one more than the precision specified when the function was defined (default precision = 9, to render unchanging 9th position in est_pi string which is 8th digit after decimal in est_pi float)
+                latter_est_pi_list = [s[:precision] for s in est_pi_list[-9:]] 
+                    #List Comprehension to take the first 9 positions of the last # est_pi strings in the est_pi_list and convert those into # floats and adds those floats into new list "latter_est_pi_list"
+                #if len(set(latter_est_pi_list)) <= 1:                
+                if float(est_pi_list[-1][:precision]) == avg_est_pi(est_pi_list):
+                    # Magical condition for which average of all float estimates of pi from  trials are equal in the first 8 digits after the decimal, if this is TRUE then I pi has been found
+                    #print(est_pi_list[-1][:precision])
+                    #print(est_pi_list[-2][:precision])
+                    print('{} iterations out of {}'.format(numTrial,index))
+                    condition = False # Initial condition from beginning of while loop declared false as pi found
+                    # Report pi
+                    print(str(est_pi))
+                    print('pi is calculated as %11.11f'%est_pi)
+    if numTrial >= index:
+        print('ABORT! ' * 80)
+        print(est_pi_list[-1])
+        print('{} iterations out of {}'.format(numTrial,index))
+                                                                  
+ #MonteCarloPi(index=10**10,precision=9)
+
+#****************************************************************
+#Part c. Create a python method to calculate the value of pi using expansion of Maclaurin series of arctan(1) = pi/4 through precision to 6 digits by increasing number of terms summed
+def ArctanSumPi(numSumTerms=10**8):
+    #Given: arctan(1) = pi/4, therefore start with declaring x=1
+    #Start sum S = 0 and sum S of one less term than S = 0
+    x = 1
+    Sum = 0.0
+    
+    #Create for loop from i=0 to numTrials to add terms of Maclaurin series of arctan(x)
+    for i in range(0,numSumTerms):
+        Sum = Sum + ((-1)**i)*((x**((2*i)+1))/((2*i)+1))
+    
+    #Scale sum S by 4 as arctan(1) = pi/4, isolate pi
+    ArctanSum_pi = 4*Sum
+    #At end of scale of sum of arctan(1) numTrials print pi
+    print(ArctanSum_pi)
+    print('pi is calculated as %11.11f'%ArctanSum_pi)
+
+
+# Refernces:
+    # Hans Guthrie hansdg1@gmail.com
+    # [1] Matthew Rothfuss mrengr@ksu.edu
+    # [2] David J. Griffiths - Introducation to Electrodynamics 4th Ed. (2014)
+    # [3] http://docs.scipy.org/*
+    # [4] https://learnpythonthehardway.org/*
+    # [5] https://docs.python.org/*
+    # http://stackoverflow.com/questions/23411688/drawing-polygon-with-n-number-of-sides-in-python-3-2
+    # [John V. Guttag] Introduction to Computation and Programming Using Python, Revided & Expanded Ed. (MIT 2013)
+    # Source for pi = http://www.geom.uiuc.edu/~huberty/math5337/groupe/digits.html
